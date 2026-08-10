@@ -1,0 +1,30 @@
+# AntiGravity Instructions
+ANTIGRAVITY.md
+
+# Archivos de configuración local / variables sensibles
+config.js
+.env
+.env.local
+.env.*.local
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / Dependencias
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de build / salida
+dist/
+build/
+.cache/
