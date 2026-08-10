@@ -13,6 +13,7 @@ const APP_CONFIG = {
     SITE: {
         NAME: "Calculadora de Comisiones AR",
         AUTHOR: "elaltillo",
+        AUTHOR_URL: "https://github.com/NikozV",
         DOMAIN: "https://comision-calc-ar.pages.dev"
     }
 };
