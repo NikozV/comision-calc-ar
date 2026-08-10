@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://comision-calc-ar.vassallo-mn.workers.dev/sitemap.xml
+Sitemap: https://comision-calc-ar.pages.dev/sitemap.xml
