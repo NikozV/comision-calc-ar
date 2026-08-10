@@ -2,7 +2,6 @@
 ANTIGRAVITY.md
 
 # Archivos de configuración local / variables sensibles
-config.js
 .env
 .env.local
 .env.*.local
