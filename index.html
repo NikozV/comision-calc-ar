@@ -7,8 +7,8 @@
     <!-- Primary Meta Tags -->
     <title>Calculadora de Comisiones Mercado Pago, Stripe y Ualá AR 2026</title>
     <meta name="title" content="Calculadora de Comisiones Mercado Pago, Stripe y Ualá AR 2026">
-    <meta name="description" content="Calculá gratis cuánto te descuentan o cuánto tenés que cobrar para recibir tu dinero limpio en Argentina con Mercado Pago, Ualá, Stripe, Payway y Lemon.">
-    <meta name="keywords" content="calculadora comisiones mercado pago argentina, cuanto me descuenta mercado pago, calcular cobro mercado pago, uala bis comisiones, stripe argentina comisiones, calculadora cobro neto bruto">
+    <meta name="description" content="Calculá gratis cuánto te descuentan o cuánto tenés que cobrar para recibir tu dinero limpio en Argentina con Mercado Pago, Ualá, Stripe, Payway y Lemon. Cotización del Dólar en vivo.">
+    <meta name="keywords" content="calculadora comisiones mercado pago argentina, cuanto me descuenta mercado pago, calcular cobro mercado pago, uala bis comisiones, stripe argentina comisiones, cotizacion dolar mep, dolar cripto argentina">
     <meta name="author" content="Calculadora de Comisiones AR">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://comision-calc-ar.pages.dev">
@@ -112,7 +112,7 @@
     </header>
 
     <!-- Main Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-12">
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
 
         <!-- Hero Intro Section -->
         <section class="text-center max-w-3xl mx-auto space-y-3">
@@ -122,6 +122,11 @@
             <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
                 Calculá en tiempo real las comisiones con IVA y retenciones impositivas. Descubrí exactamente cuánto te queda o cuánto cobrar para recibir tu dinero limpio.
             </p>
+        </section>
+
+        <!-- Live Dólar Ticker Widget -->
+        <section id="dolar-ticker-container" class="max-w-6xl mx-auto bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-1.5 shadow-lg backdrop-blur-md">
+            <!-- Rendered dynamically via app.js -->
         </section>
 
         <!-- Main Calculator Card -->
@@ -159,7 +164,7 @@
                             <label id="amount-input-label" for="amount-input" class="block text-sm font-bold text-slate-200">
                                 Monto Bruto a cobrar ($)
                             </label>
-                            <span class="text-xs text-sky-400 font-medium">ARS ($)</span>
+                            <span id="currency-badge" class="text-xs text-sky-400 font-medium bg-sky-500/10 px-2 py-0.5 rounded-md border border-sky-500/30">ARS ($)</span>
                         </div>
                         
                         <div class="relative">
@@ -245,6 +250,9 @@
                                 <div id="res-net" class="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight">$0,00</div>
                                 <span class="text-[11px] text-emerald-500/80 font-medium">Plata limpia recibida</span>
                             </div>
+
+                            <!-- USD Equivalent Conversion Card (Visible on Stripe / USD) -->
+                            <div id="res-usd-conversion" class="hidden"></div>
 
                             <!-- Gross charged -->
                             <div class="flex items-center justify-between px-2 text-sm">

@@ -1,6 +1,6 @@
 /**
  * Calculadora de Comisiones de Cobro para Argentina
- * app.js - Lógica de cálculo, pasarelas de pago, eventos y soporte
+ * app.js - Lógica de cálculo, pasarelas de pago, eventos, cotización de dólar en vivo y soporte
  */
 
 // Base de datos de pasarelas de pago y sus opciones
@@ -10,6 +10,7 @@ const PAYMENT_GATEWAYS = {
         icon: "mp",
         badge: "Más usado",
         color: "from-sky-500 to-blue-600",
+        currency: "ARS",
         options: [
             { id: "mp_qr_dinero", name: "QR - Dinero en cuenta", rate: 0.80, fixed: 0, period: "En el acto", hasVat: true },
             { id: "mp_qr_debito", name: "QR - Tarjeta de Débito", rate: 1.50, fixed: 0, period: "En el acto", hasVat: true },
@@ -30,6 +31,7 @@ const PAYMENT_GATEWAYS = {
         icon: "uala",
         badge: "Baja comisión",
         color: "from-red-500 to-rose-600",
+        currency: "ARS",
         options: [
             { id: "uala_acto", name: "Cobro Inmediato", rate: 4.40, fixed: 0, period: "En el acto", hasVat: true },
             { id: "uala_14d", name: "Cobro a 14 días", rate: 2.90, fixed: 0, period: "14 días", hasVat: true },
@@ -39,11 +41,12 @@ const PAYMENT_GATEWAYS = {
     stripe: {
         name: "Stripe",
         icon: "stripe",
-        badge: "Internacional",
+        badge: "Internacional (USD)",
         color: "from-indigo-600 to-violet-700",
+        currency: "USD",
         options: [
-            { id: "stripe_nac", name: "Tarjeta Nacional", rate: 2.90, fixed: 30, isFixedUsd: false, period: "2-7 días", hasVat: false },
-            { id: "stripe_int", name: "Tarjeta Internacional / USD", rate: 3.90, fixed: 30, isFixedUsd: false, period: "2-7 días", hasVat: false }
+            { id: "stripe_nac", name: "Tarjeta Nacional (USD)", rate: 2.90, fixed: 0.30, isFixedUsd: true, period: "2-7 días", hasVat: false },
+            { id: "stripe_int", name: "Tarjeta Internacional (USD)", rate: 3.90, fixed: 0.30, isFixedUsd: true, period: "2-7 días", hasVat: false }
         ]
     },
     payway: {
@@ -51,6 +54,7 @@ const PAYMENT_GATEWAYS = {
         icon: "payway",
         badge: "Comercios",
         color: "from-emerald-500 to-teal-700",
+        currency: "ARS",
         options: [
             { id: "payway_debito", name: "Tarjeta de Débito", rate: 1.50, fixed: 0, period: "24 horas", hasVat: true },
             { id: "payway_credito", name: "Tarjeta de Crédito", rate: 1.80, fixed: 0, period: "48 horas", hasVat: true }
@@ -61,6 +65,7 @@ const PAYMENT_GATEWAYS = {
         icon: "lemon",
         badge: "Crypto / ARS",
         color: "from-green-400 to-emerald-600",
+        currency: "ARS",
         options: [
             { id: "lemon_qr", name: "QR / Lemon Pay", rate: 0.50, fixed: 0, period: "En el acto", hasVat: true }
         ]
@@ -70,6 +75,7 @@ const PAYMENT_GATEWAYS = {
         icon: "naranjax",
         badge: "Planes locales",
         color: "from-amber-500 to-orange-600",
+        currency: "ARS",
         options: [
             { id: "nx_acto", name: "Cobro En el acto", rate: 3.99, fixed: 0, period: "En el acto", hasVat: true },
             { id: "nx_14d", name: "Cobro a 14 días", rate: 1.99, fixed: 0, period: "14 días", hasVat: true }
@@ -80,6 +86,7 @@ const PAYMENT_GATEWAYS = {
         icon: "custom",
         badge: "A tu medida",
         color: "from-purple-500 to-indigo-600",
+        currency: "ARS",
         options: [
             { id: "custom_rate", name: "Comisión Personalizada", rate: 5.00, fixed: 0, period: "Personalizado", hasVat: true }
         ]
@@ -88,14 +95,21 @@ const PAYMENT_GATEWAYS = {
 
 // Estado Global de la Calculadora
 const state = {
-    mode: "receive", // "receive" (¿cuánto me descuentan?) | "charge" (¿cuánto tengo que cobrar?)
+    mode: "receive", // "receive" | "charge"
     gateway: "mercadopago",
     optionId: "mp_link_acto",
     amount: 10000,
     vatPercent: 21,
     taxPercent: 0,
     customRate: 5.00,
-    customFixed: 0
+    customFixed: 0,
+    dolarRates: {
+        oficial: { compra: 1050, venta: 1090 },
+        mep: { compra: 1280, venta: 1295 },
+        cripto: { compra: 1300, venta: 1320 },
+        tarjeta: { compra: 1700, venta: 1740 }
+    },
+    dolarUpdated: false
 };
 
 // Formateador de moneda en Pesos Argentinos
@@ -103,6 +117,16 @@ const formatARS = (val) => {
     return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(val || 0);
+};
+
+// Formateador de moneda en Dólares USD
+const formatUSD = (val) => {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(val || 0);
@@ -116,6 +140,66 @@ const formatPercent = (val) => {
     }).format(val || 0) + "%";
 };
 
+// Obtener cotizaciones del Dólar en vivo desde dolarapi.com
+async function fetchDolarRates() {
+    try {
+        const res = await fetch("https://dolarapi.com/v1/dolares");
+        if (!res.ok) throw new Error("Error en respuesta DolarApi");
+        const data = await res.json();
+
+        data.forEach(item => {
+            const casa = item.casa;
+            if (casa === "oficial") state.dolarRates.oficial = { compra: item.compra, venta: item.venta };
+            if (casa === "bolsa") state.dolarRates.mep = { compra: item.compra, venta: item.venta };
+            if (casa === "cripto") state.dolarRates.cripto = { compra: item.compra, venta: item.venta };
+            if (casa === "tarjeta") state.dolarRates.tarjeta = { compra: item.compra, venta: item.venta };
+        });
+
+        state.dolarUpdated = true;
+        renderDolarTicker();
+        updateUI();
+    } catch (err) {
+        console.warn("No se pudo cargar la API en vivo de dólares. Usando cotizaciones de respaldo:", err);
+        renderDolarTicker();
+    }
+}
+
+// Renderizar la barra de cotizaciones de Dólar
+function renderDolarTicker() {
+    const container = document.getElementById("dolar-ticker-container");
+    if (!container) return;
+
+    const rates = state.dolarRates;
+    const isLive = state.dolarUpdated;
+
+    container.innerHTML = `
+        <div class="flex items-center justify-between gap-4 overflow-x-auto py-2 text-xs">
+            <div class="flex items-center gap-2 whitespace-nowrap">
+                <span class="w-2 h-2 rounded-full ${isLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}"></span>
+                <span class="font-bold text-slate-300">${isLive ? "Dólar en Vivo (dolarapi.com)" : "Cotización estimada Dólar"}</span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-300 font-medium">
+                <div class="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-slate-400">Oficial:</span>
+                    <span class="font-bold text-white">$${rates.oficial.venta}</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-slate-400">MEP:</span>
+                    <span class="font-bold text-sky-400">$${rates.mep.venta}</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-slate-400">Cripto:</span>
+                    <span class="font-bold text-emerald-400">$${rates.cripto.venta}</span>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-slate-400">Tarjeta:</span>
+                    <span class="font-bold text-amber-400">$${rates.tarjeta.venta}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 // Obtener datos de la opción seleccionada actualmente
 function getSelectedOptionData() {
     const gw = PAYMENT_GATEWAYS[state.gateway];
@@ -128,12 +212,13 @@ function getSelectedOptionData() {
             rate: parseFloat(state.customRate) || 0,
             fixed: parseFloat(state.customFixed) || 0,
             period: "A convenir",
-            hasVat: state.vatPercent > 0
+            hasVat: state.vatPercent > 0,
+            isUsd: false
         };
     }
 
     const opt = gw.options.find(o => o.id === state.optionId);
-    return opt || gw.options[0];
+    return { ...opt, isUsd: gw.currency === "USD" };
 }
 
 // Ejecutar el cálculo matemático
@@ -146,6 +231,7 @@ function calculateFees() {
     const vatRate = (option.hasVat ? (parseFloat(state.vatPercent) || 0) : 0) / 100;
     const taxRate = (parseFloat(state.taxPercent) || 0) / 100;
     const fixedCost = option.fixed || 0;
+    const isUsd = option.isUsd;
 
     let gross = 0;
     let net = 0;
@@ -165,16 +251,11 @@ function calculateFees() {
     } else {
         // MODO 2: Ingresa Neto deseado, calcular Bruto necesario a cobrar
         net = rawAmount;
-        
-        // Tasa efectiva total descontada por cada peso cobrado
-        // TasaEfectiva = commRate * (1 + vatRate) + taxRate
         const effectiveRate = (commRate * (1 + vatRate)) + taxRate;
         
         if (effectiveRate >= 1) {
-            // Evitar división por cero o resultados negativos si comisiones superan 100%
             gross = net;
         } else {
-            // Bruto = (Neto + CostoFijo) / (1 - TasaEfectiva)
             gross = (net + fixedCost) / (1 - effectiveRate);
         }
 
@@ -185,6 +266,11 @@ function calculateFees() {
     }
 
     const effectivePercent = gross > 0 ? (totalDeduction / gross) * 100 : 0;
+
+    // Cálculo equivalente en ARS si la transacción es en USD (vía Dólar MEP)
+    const mepRate = state.dolarRates.mep.venta || 1300;
+    const netArsEquivalent = isUsd ? net * mepRate : null;
+    const grossArsEquivalent = isUsd ? gross * mepRate : null;
 
     return {
         mode: state.mode,
@@ -198,7 +284,11 @@ function calculateFees() {
         effectivePercent,
         period: option.period,
         optionName: option.name,
-        gatewayName: PAYMENT_GATEWAYS[state.gateway].name
+        gatewayName: PAYMENT_GATEWAYS[state.gateway].name,
+        isUsd,
+        mepRate,
+        netArsEquivalent,
+        grossArsEquivalent
     };
 }
 
@@ -207,7 +297,6 @@ function updateUI() {
     const results = calculateFees();
     if (!results) return;
 
-    // Actualizar montos en la tarjeta principal
     const elGross = document.getElementById("res-gross");
     const elNet = document.getElementById("res-net");
     const elCommission = document.getElementById("res-commission");
@@ -217,31 +306,56 @@ function updateUI() {
     const elTotalDeduction = document.getElementById("res-total-deduction");
     const elEffectivePercent = document.getElementById("res-effective-percent");
     const elPeriod = document.getElementById("res-period");
+    const elUsdConversion = document.getElementById("res-usd-conversion");
 
-    if (elGross) elGross.textContent = formatARS(results.gross);
-    if (elNet) elNet.textContent = formatARS(results.net);
-    if (elCommission) elCommission.textContent = formatARS(results.baseCommission);
-    if (elVat) elVat.textContent = formatARS(results.vatAmount);
-    if (elTax) elTax.textContent = formatARS(results.taxAmount);
-    if (elFixed) elFixed.textContent = formatARS(results.fixedCost);
-    if (elTotalDeduction) elTotalDeduction.textContent = `- ${formatARS(results.totalDeduction)}`;
+    const formatFn = results.isUsd ? formatUSD : formatARS;
+
+    if (elGross) elGross.textContent = formatFn(results.gross);
+    if (elNet) elNet.textContent = formatFn(results.net);
+    if (elCommission) elCommission.textContent = formatFn(results.baseCommission);
+    if (elVat) elVat.textContent = formatFn(results.vatAmount);
+    if (elTax) elTax.textContent = formatFn(results.taxAmount);
+    if (elFixed) elFixed.textContent = formatFn(results.fixedCost);
+    if (elTotalDeduction) elTotalDeduction.textContent = `- ${formatFn(results.totalDeduction)}`;
     if (elEffectivePercent) elEffectivePercent.textContent = `(${formatPercent(results.effectivePercent)} del total)`;
     if (elPeriod) elPeriod.textContent = results.period;
+
+    // Mostrar u ocultar la tarjeta de conversión de USD a ARS
+    if (elUsdConversion) {
+        if (results.isUsd) {
+            elUsdConversion.classList.remove("hidden");
+            elUsdConversion.innerHTML = `
+                <div class="bg-sky-950/40 border border-sky-800/50 rounded-2xl p-3 text-center space-y-1 mt-3">
+                    <span class="text-[11px] font-semibold text-sky-400 uppercase tracking-wider">Equivalente Neto en Pesos (Dólar MEP $${results.mepRate})</span>
+                    <div class="text-xl font-bold text-sky-300">${formatARS(results.netArsEquivalent)}</div>
+                </div>
+            `;
+        } else {
+            elUsdConversion.classList.add("hidden");
+        }
+    }
 
     // Etiqueta del input principal
     const amountLabel = document.getElementById("amount-input-label");
     const amountSubtext = document.getElementById("amount-input-subtext");
+    const currencyBadge = document.getElementById("currency-badge");
+
+    if (currencyBadge) {
+        currencyBadge.textContent = results.isUsd ? "USD ($)" : "ARS ($)";
+    }
+
     if (amountLabel) {
+        const symbol = results.isUsd ? "USD ($)" : "ARS ($)";
         if (state.mode === "receive") {
-            amountLabel.textContent = "Monto Bruto a cobrar ($)";
+            amountLabel.textContent = `Monto Bruto a cobrar (${symbol})`;
             if (amountSubtext) amountSubtext.textContent = "Ingresá lo que vas a cobrar al cliente para saber cuánto te queda limpio.";
         } else {
-            amountLabel.textContent = "Monto Neto deseado en tu bolsillo ($)";
+            amountLabel.textContent = `Monto Neto deseado en tu bolsillo (${symbol})`;
             if (amountSubtext) amountSubtext.textContent = "Ingresá cuánto querés recibir limpio para saber cuánto cobrar al cliente.";
         }
     }
 
-    // Mostrar/Ocultar controles personalizados si es opción Custom
+    // Mostrar/Ocultar controles personalizados
     const customPanel = document.getElementById("custom-gateway-panel");
     if (customPanel) {
         if (state.gateway === "custom") {
@@ -252,7 +366,7 @@ function updateUI() {
     }
 }
 
-// Renderizar la lista de Pasarelas (Tabs superiores)
+// Renderizar la lista de Pasarelas
 function renderGatewayTabs() {
     const container = document.getElementById("gateway-tabs-container");
     if (!container) return;
@@ -302,7 +416,8 @@ function renderOptionsSelect() {
     gw.options.forEach(opt => {
         const selected = state.optionId === opt.id ? "selected" : "";
         const vatNote = opt.hasVat ? "+ IVA" : "final";
-        html += `<option value="${opt.id}" ${selected}>${opt.name} (${opt.rate}% ${vatNote} - ${opt.period})</option>`;
+        const fixedStr = opt.fixed > 0 ? ` + $${opt.fixed} ${gw.currency}` : "";
+        html += `<option value="${opt.id}" ${selected}>${opt.name} (${opt.rate}%${fixedStr} ${vatNote} - ${opt.period})</option>`;
     });
 
     html += `</select>`;
@@ -324,6 +439,17 @@ function selectGateway(key) {
     if (gw && gw.options && gw.options.length > 0) {
         state.optionId = gw.options[0].id;
     }
+    // Si cambia a Stripe, ajustar monto por omisión a USD 100 si es 10000
+    if (key === "stripe" && state.amount === 10000) {
+        state.amount = 100;
+        const amountInput = document.getElementById("amount-input");
+        if (amountInput) amountInput.value = 100;
+    } else if (key !== "stripe" && state.amount === 100) {
+        state.amount = 10000;
+        const amountInput = document.getElementById("amount-input");
+        if (amountInput) amountInput.value = 10000;
+    }
+
     renderGatewayTabs();
     renderOptionsSelect();
     updateUI();
@@ -351,15 +477,16 @@ function copyBreakdown() {
     const results = calculateFees();
     if (!results) return;
 
+    const formatFn = results.isUsd ? formatUSD : formatARS;
+
     const text = `📊 *Desglose de Cobro (${results.gatewayName})*
     
 🔹 *Opción:* ${results.optionName}
-🔹 *Monto Bruto (Cobrado):* ${formatARS(results.gross)}
-🔻 *Comisión Base:* ${formatARS(results.baseCommission)}
-🔻 *IVA (21%):* ${formatARS(results.vatAmount)}
-${results.taxAmount > 0 ? `🔻 *Retenciones:* ${formatARS(results.taxAmount)}\n` : ""}${results.fixedCost > 0 ? `🔻 *Costo Fijo:* ${formatARS(results.fixedCost)}\n` : ""}🔻 *Total Descuentos:* ${formatARS(results.totalDeduction)} (${formatPercent(results.effectivePercent)})
+🔹 *Monto Bruto (Cobrado):* ${formatFn(results.gross)}
+🔻 *Comisión Base:* ${formatFn(results.baseCommission)}
+${results.vatAmount > 0 ? `🔻 *IVA (21%):* ${formatFn(results.vatAmount)}\n` : ""}${results.taxAmount > 0 ? `🔻 *Retenciones:* ${formatFn(results.taxAmount)}\n` : ""}${results.fixedCost > 0 ? `🔻 *Costo Fijo:* ${formatFn(results.fixedCost)}\n` : ""}🔻 *Total Descuentos:* ${formatFn(results.totalDeduction)} (${formatPercent(results.effectivePercent)})
 =========================
-💵 *Monto Neto a Recibir:* ${formatARS(results.net)}
+💵 *Monto Neto a Recibir:* ${formatFn(results.net)}${results.isUsd ? ` (~ ${formatARS(results.netArsEquivalent)} al Dólar MEP)` : ""}
 ⏱️ *Acreditación:* ${results.period}
 
 Calculado con Calculadora de Comisiones AR (${APP_CONFIG?.SITE?.DOMAIN || "https://comision-calc-ar.pages.dev"})`;
@@ -482,9 +609,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Renderizar componentes dinámicos
+    // Renderizar componentes dinámicos y pedir cotizaciones en vivo
     renderGatewayTabs();
     renderOptionsSelect();
     initSupportBlock();
+    fetchDolarRates();
     updateUI();
 });
