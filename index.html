@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es-AR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Calculadora de Comisiones Mercado Pago, Stripe y Ualá AR 2026</title>
+    <meta name="title" content="Calculadora de Comisiones Mercado Pago, Stripe y Ualá AR 2026">
+    <meta name="description" content="Calculá gratis cuánto te descuentan o cuánto tenés que cobrar para recibir tu dinero limpio en Argentina con Mercado Pago, Ualá, Stripe, Payway y Lemon.">
+    <meta name="keywords" content="calculadora comisiones mercado pago argentina, cuanto me descuenta mercado pago, calcular cobro mercado pago, uala bis comisiones, stripe argentina comisiones, calculadora cobro neto bruto">
+    <meta name="author" content="Calculadora de Comisiones AR">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://comision-calc-ar.pages.dev">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://comision-calc-ar.pages.dev">
+    <meta property="og:title" content="Calculadora de Comisiones Mercado Pago, Ualá y Stripe Argentina">
+    <meta property="og:description" content="Calculá en el acto lo que te descuentan y lo que tenés que cobrar para recibir tu plata limpia en Argentina.">
+    <meta property="og:image" content="https://comision-calc-ar.pages.dev/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://comision-calc-ar.pages.dev">
+    <meta property="twitter:title" content="Calculadora de Comisiones Mercado Pago, Ualá y Stripe Argentina">
+    <meta property="twitter:description" content="Calculá en el acto lo que te descuentan y lo que tenés que cobrar para recibir tu plata limpia en Argentina.">
+    <meta property="twitter:image" content="https://comision-calc-ar.pages.dev/og-image.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Calculadora de Comisiones AR",
+      "url": "https://comision-calc-ar.pages.dev",
+      "description": "Calculadora de comisiones e impuestos de cobro para Mercado Pago, Ualá Bis, Stripe, Payway y Lemon Cash en Argentina.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "ARS"
+      }
+    }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Background decorative gradients -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-sky-600/15 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform">
+                    $
+                </div>
+                <div>
+                    <span class="font-heading font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        ComisiónCalc <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30 font-semibold">AR 2026</span>
+                    </span>
+                    <p class="text-[11px] text-slate-400 -mt-1 hidden sm:block">Calculadora exacta de cobros en Argentina</p>
+                </div>
+            </a>
+            
+            <a href="#apoyo-section" class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all">
+                <span>☕ Invitame un Cafecito</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-12">
+
+        <!-- Hero Intro Section -->
+        <section class="text-center max-w-3xl mx-auto space-y-3">
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                ¿Cuánto te descuenta <span class="bg-gradient-to-r from-sky-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">Mercado Pago</span> o tu billetera?
+            </h1>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                Calculá en tiempo real las comisiones con IVA y retenciones impositivas. Descubrí exactamente cuánto te queda o cuánto cobrar para recibir tu dinero limpio.
+            </p>
+        </section>
+
+        <!-- Main Calculator Card -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-8 shadow-2xl backdrop-blur-xl space-y-8">
+
+            <!-- Calculation Mode Selector (Tabs) -->
+            <div class="bg-slate-950 p-1.5 rounded-2xl border border-slate-800/80 flex flex-col sm:flex-row gap-1">
+                <button type="button" id="tab-mode-receive" onclick="setMode('receive')" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    <span>¿Cuánto me descuentan?</span>
+                </button>
+                <button type="button" id="tab-mode-charge" onclick="setMode('charge')" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/50 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    <span>¿Cuánto tengo que cobrar?</span>
+                </button>
+            </div>
+
+            <!-- Gateway Tabs -->
+            <div class="space-y-3">
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Elegí la pasarela o plataforma de cobro</label>
+                <div id="gateway-tabs-container" class="flex flex-wrap gap-2">
+                    <!-- Dynamic rendering via app.js -->
+                </div>
+            </div>
+
+            <!-- Main Input & Options Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Inputs Column (7 Cols) -->
+                <div class="lg:col-span-7 space-y-6">
+
+                    <!-- Amount Input Group -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label id="amount-input-label" for="amount-input" class="block text-sm font-bold text-slate-200">
+                                Monto Bruto a cobrar ($)
+                            </label>
+                            <span class="text-xs text-sky-400 font-medium">ARS ($)</span>
+                        </div>
+                        
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500">$</span>
+                            <input type="number" id="amount-input" min="0" step="100" placeholder="10000" class="w-full bg-slate-950 border border-slate-700 text-white rounded-2xl pl-10 pr-4 py-4 text-2xl font-extrabold focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all">
+                        </div>
+                        <p id="amount-input-subtext" class="text-xs text-slate-400">Ingresá el valor para realizar el desglose instantáneo.</p>
+                    </div>
+
+                    <!-- Quick Amount Chips -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Montos rápidos</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" data-amount="5000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$5.000</button>
+                            <button type="button" data-amount="10000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$10.000</button>
+                            <button type="button" data-amount="50000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$50.000</button>
+                            <button type="button" data-amount="100000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$100.000</button>
+                            <button type="button" data-amount="250000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$250.000</button>
+                            <button type="button" data-amount="500000" class="amount-chip px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-all">$500.000</button>
+                        </div>
+                    </div>
+
+                    <!-- Gateway Specific Options Container -->
+                    <div id="gateway-options-container" class="space-y-2">
+                        <!-- Dynamic select rendered via app.js -->
+                    </div>
+
+                    <!-- Custom Gateway Settings (Hidden by default) -->
+                    <div id="custom-gateway-panel" class="hidden grid grid-cols-2 gap-4 p-4 bg-slate-950/80 rounded-2xl border border-slate-800">
+                        <div>
+                            <label for="custom-rate-input" class="block text-xs text-slate-400 mb-1">Comisión %</label>
+                            <input type="number" id="custom-rate-input" step="0.1" value="5.0" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
+                        <div>
+                            <label for="custom-fixed-input" class="block text-xs text-slate-400 mb-1">Costo Fijo $</label>
+                            <input type="number" id="custom-fixed-input" step="1" value="0" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
+                    </div>
+
+                    <!-- Taxes & Retentions Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="vat-select" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                                IVA sobre Comisión
+                            </label>
+                            <select id="vat-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <option value="21" selected>21% (Inscripto / Estándar AR)</option>
+                                <option value="10.5">10.5% (Tasa reducida)</option>
+                                <option value="0">0% (Exento / Sin IVA)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="tax-select" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                                Retención IIBB / Sircreb
+                            </label>
+                            <select id="tax-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <option value="0" selected>0% (Sin retenciones)</option>
+                                <option value="1.5">1.5% (Retención IIBB Régimen Gral)</option>
+                                <option value="2.5">2.5% (IIBB CABA / PBA Estándar)</option>
+                                <option value="3.5">3.5% (Sircreb Riesgo Alto)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Results Column (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col">
+                    <div class="h-full bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 shadow-xl relative overflow-hidden">
+                        
+                        <!-- Top result badge -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Resultado del cálculo</span>
+                            <span id="res-period" class="text-xs px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/30 font-semibold">En el acto</span>
+                        </div>
+
+                        <!-- Highlighted Net / Gross Display -->
+                        <div class="space-y-4 my-auto">
+                            <!-- Net received -->
+                            <div class="bg-emerald-950/40 border border-emerald-800/50 rounded-2xl p-4 text-center space-y-1">
+                                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Monto Neto en tu cuenta</span>
+                                <div id="res-net" class="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight">$0,00</div>
+                                <span class="text-[11px] text-emerald-500/80 font-medium">Plata limpia recibida</span>
+                            </div>
+
+                            <!-- Gross charged -->
+                            <div class="flex items-center justify-between px-2 text-sm">
+                                <span class="text-slate-400">Monto Bruto a cobrar:</span>
+                                <span id="res-gross" class="font-bold text-white text-base">$0,00</span>
+                            </div>
+
+                            <!-- Divider -->
+                            <hr class="border-slate-800">
+
+                            <!-- Detailed breakdown -->
+                            <div class="space-y-2.5 text-xs text-slate-300">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Comisión Base Plataforma:</span>
+                                    <span id="res-commission" class="font-semibold text-slate-200">$0,00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">IVA sobre comisión (21%):</span>
+                                    <span id="res-vat" class="font-semibold text-slate-200">$0,00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Retenciones (IIBB):</span>
+                                    <span id="res-tax" class="font-semibold text-slate-200">$0,00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-400">Costo Fijo:</span>
+                                    <span id="res-fixed" class="font-semibold text-slate-200">$0,00</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 font-bold text-sm">
+                                    <span class="text-rose-400">Total Descontado:</span>
+                                    <div class="text-right">
+                                        <span id="res-total-deduction" class="text-rose-400">- $0,00</span>
+                                        <span id="res-effective-percent" class="block text-[10px] text-rose-500/80 font-medium">(0% del total)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button: Copy Breakdown -->
+                        <button type="button" onclick="copyBreakdown()" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm transition-all border border-slate-700 flex items-center justify-center gap-2 shadow-lg group">
+                            <svg class="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span>Copiar Desglose Completo</span>
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Support / Monetization Block (Centralized with config.js) -->
+        <section id="apoyo-section" class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-indigo-950/40 border border-amber-500/20 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-semibold">
+                        <span>☕ Apoyá este proyecto independiente</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white">¿Te sirvió la calculadora de comisiones?</h2>
+                    <p class="text-slate-400 text-sm max-w-xl">
+                        Mantenemos esta herramienta 100% gratuita, sin publicidad molesta y actualizada para emprendedores y freelancers de Argentina. Podés invitarme un cafecito para seguir sumando funciones.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <!-- Cafecito Button -->
+                    <a id="cafecito-btn" href="https://cafecito.app" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition-all text-center flex items-center justify-center gap-2">
+                        <span>Invitame un Cafecito</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+
+                    <!-- MercadoPago Quick Copy Dropdown / Buttons -->
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="copySupportDetail('alias')" class="flex-1 sm:flex-initial px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center justify-center gap-1.5">
+                            <span>Copiar Alias MP</span>
+                            <span id="support-alias-text" class="hidden"></span>
+                        </button>
+                        <button type="button" onclick="copySupportDetail('cvu')" class="flex-1 sm:flex-initial px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center justify-center gap-1.5">
+                            <span>Copiar CVU</span>
+                            <span id="support-cvu-text" class="hidden"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEO Reference Comparison Table & Guide -->
+        <section class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h2 class="text-2xl font-bold text-white">Tabla Comparativa de Comisiones 2026 en Argentina</h2>
+                <p class="text-slate-400 text-sm">Resumen de tasas estándar cobradas por cobrar con tarjeta, QR o link de pago.</p>
+            </div>
+
+            <div class="overflow-x-auto bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl">
+                <table class="w-full text-left text-xs sm:text-sm text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-4">Pasarela / Medio</th>
+                            <th class="px-6 py-4">Modalidad</th>
+                            <th class="px-6 py-4">Comisión Base</th>
+                            <th class="px-6 py-4">IVA Incluido (21%)</th>
+                            <th class="px-6 py-4">Acreditación</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Mercado Pago</td>
+                            <td class="px-6 py-4">QR Dinero en Cuenta</td>
+                            <td class="px-6 py-4 text-emerald-400 font-medium">0,80%</td>
+                            <td class="px-6 py-4">0,97% final</td>
+                            <td class="px-6 py-4">En el acto</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Mercado Pago</td>
+                            <td class="px-6 py-4">Link de Pago En el acto</td>
+                            <td class="px-6 py-4 font-medium">6,39%</td>
+                            <td class="px-6 py-4">7,73% final</td>
+                            <td class="px-6 py-4">En el acto</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Mercado Pago</td>
+                            <td class="px-6 py-4">Link de Pago 14 días</td>
+                            <td class="px-6 py-4 font-medium">3,39%</td>
+                            <td class="px-6 py-4">4,10% final</td>
+                            <td class="px-6 py-4">14 días</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Ualá Bis</td>
+                            <td class="px-6 py-4">Cobro Inmediato</td>
+                            <td class="px-6 py-4 font-medium">4,40%</td>
+                            <td class="px-6 py-4">5,32% final</td>
+                            <td class="px-6 py-4">En el acto</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Payway / Posnet</td>
+                            <td class="px-6 py-4">Tarjeta de Débito</td>
+                            <td class="px-6 py-4 text-emerald-400 font-medium">1,50%</td>
+                            <td class="px-6 py-4">1,82% final</td>
+                            <td class="px-6 py-4">24 horas</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">Stripe</td>
+                            <td class="px-6 py-4">Tarjeta Nacional</td>
+                            <td class="px-6 py-4 font-medium">2,90% + $0,30 USD</td>
+                            <td class="px-6 py-4">Según residencia</td>
+                            <td class="px-6 py-4">2 a 7 días</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h2 class="text-2xl font-bold text-white">Preguntas Frecuentes</h2>
+                <p class="text-slate-400 text-sm">Resuelvas tus dudas sobre retenciones impositivas y comisiones en Argentina.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-2">
+                    <h3 class="font-bold text-white text-base">¿Por qué Mercado Pago cobra IVA sobre la comisión?</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Mercado Pago brinda un servicio de procesamiento de pagos y cobra un 21% de IVA únicamente sobre el valor de su comisión de servicio, no sobre el monto total de tu venta.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-2">
+                    <h3 class="font-bold text-white text-base">¿Qué son las retenciones de IIBB o Sircreb?</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Son adelantos del Impuesto a los Ingresos Brutos administrados por las provincias (como ARBA o AGIP) que las procesadoras deben retener si estás inscripto o si tuviste muchas operaciones.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-2">
+                    <h3 class="font-bold text-white text-base">¿Cómo funciona el cálculo inverso ("¿Cuánto tengo que cobrar?")?</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Nuestra herramienta aplica la fórmula algebraica exacta <code class="text-sky-400 bg-slate-950 px-1.5 py-0.5 rounded">Bruto = Neto / (1 - TasaEfectiva)</code> para garantizar que tras todos los descuentos recibas exactamente el valor limpio que necesitás.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-2">
+                    <h3 class="font-bold text-white text-base">¿Varían las comisiones según los días de acreditación?</h3>
+                    <p class="text-slate-400 leading-relaxed">
+                        Sí. Billeteras como Mercado Pago o Ualá ofrecen tasas más bajas si estás dispuesto a esperar 10, 14 o 35 días para retirar tu dinero.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500 space-y-3">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 Calculadora de Comisiones AR. Herramienta independiente no afiliada oficialmente a Mercado Pago, Ualá o Stripe.</p>
+            <div class="flex items-center gap-4">
+                <a href="#apoyo-section" class="hover:text-slate-300 transition-colors">Invitar Cafecito</a>
+                <span>•</span>
+                <a href="#" class="hover:text-slate-300 transition-colors">Volver arriba ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out pointer-events-none">
+        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3">
+            <span class="text-emerald-400">✨</span>
+            <span id="toast-message" class="text-sm font-medium">Mensaje...</span>
+        </div>
+    </div>
+
+    <!-- Configuration and App JavaScript -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
