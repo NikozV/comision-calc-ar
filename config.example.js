@@ -12,6 +12,7 @@ const APP_CONFIG = {
     // Configuración del sitio y SEO
     SITE: {
         NAME: "Calculadora de Comisiones AR",
+        AUTHOR: "elaltillo",
         DOMAIN: "https://comision-calc-ar.pages.dev"
     }
 };
